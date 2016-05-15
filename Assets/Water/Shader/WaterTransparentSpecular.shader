@@ -2,7 +2,7 @@
     Properties {
 	_WaveSpeed ("Wave speed", Vector) = (1,-1,0.1,0.1)
 	_Exposure ("Exposure", Float) = 0.05
-	_Distortion ("Distortion", Range(-10,.5)) = 0
+	_Distortion ("Distortion", Range(0,1)) = 0
 	_Shininess ("Shininess", Range (0.03, 1)) = 1
 	_AlphaAmount ("Alpha ", Range(0.01, 1)) = 0.5
     _MainTex ("SurfaceWaveTexture", 2D) = "white" {}
@@ -34,10 +34,20 @@
 	{
 		fixed diff = max (0, dot (s.Normal, _LightDir.xyz));
 		fixed nh = max (0, dot (s.Normal, halfDir));
+		fixed3 reflectionDir = reflect(halfDir, s.Normal);
 		fixed spec = pow (nh, s.Specular*128) * s.Gloss;
-	
+
+		fixed4 reflection = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, reflectionDir);
+
+		fixed4 hdrReflection;
+		hdrReflection.rgb = DecodeHDR(reflection, unity_SpecCube0_HDR);
+		hdrReflection.a = 1.0;
+
+
 		fixed4 c;
-		c.rgb = (s.Albedo * _LightColor.rgb * diff + _LightColor.rgb * spec) * (atten*2);
+		//c.rgb = hdrReflection;
+
+		c.rgb = (s.Albedo * _LightColor.rgb * diff + _LightColor.rgb * spec) * hdrReflection * (atten*2);
 		c.a = s.Alpha;
 		return c;
 	}
@@ -57,8 +67,8 @@
 	void surf (Input IN, inout SurfaceOutput o) 
 	{
 		half4 tex = tex2D(_MainTex, IN.uv_MainTex);
-		fixed4 normal1 = tex2D(_BumpMap, float2(IN.uv_MainTex.x +(_WaveSpeed.x * _Time.x),IN.uv_MainTex.y+(_WaveSpeed.y * _Time.x)));
-		fixed4 normal2 = tex2D(_BumpMap, float2(IN.uv_MainTex.x +(_WaveSpeed.z * _Time.x),IN.uv_MainTex.y+(_WaveSpeed.w * _Time.x)));
+		fixed4 normal1 = tex2D(_BumpMap, float2(IN.uv_MainTex.x +(_WaveSpeed.x * _Time.x),IN.uv_MainTex.y+(_WaveSpeed.y * _Time.x))) * _Distortion;
+		fixed4 normal2 = tex2D(_BumpMap, float2(IN.uv_MainTex.x +(_WaveSpeed.z * _Time.x),IN.uv_MainTex.y+(_WaveSpeed.w * _Time.x))) * _Distortion;
 		o.Albedo = tex.rgb * _Exposure;
 		o.Gloss = tex.a;
 		o.Normal = UnpackNormal (normal1) * 0.5 + UnpackNormal(normal2) * 0.5;

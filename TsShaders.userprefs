@@ -2,7 +2,7 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Water\Shader\WaterTransparentSpecular.shader">
     <Files>
-      <File FileName="Assets\Water\Shader\WaterTransparentSpecular.shader" Line="30" Column="18" />
+      <File FileName="Assets\Water\Shader\WaterTransparentSpecular.shader" Line="64" Column="28" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
